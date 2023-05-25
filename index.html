@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Grafo de Red con D3.js</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    html,
+    body,
+    svg {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .link {
+      stroke: #999;
+      stroke-opacity: 0.6;
+    }
+    .node {
+      fill: #FFA500;
+      stroke: #FFF;
+      stroke-width: 2px;
+    }
+    .tooltip {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      fill: #000;
+    }
+  </style>
+</head>
+<body>
+  <svg></svg>
+  <script>
+    // Datos del grafo
+    const nodes = [
+      { id: "A", name: "Activo 1" },
+      { id: "B", name: "Activo 2" },
+      { id: "C", name: "Activo 3" },
+      { id: "D", name: "Activo 4" },
+      { id: "E", name: "Activo 4" },
+      { id: "F", name: "Activo 4" },
+      { id: "G", name: "Activo 4" },
+      { id: "H", name: "Activo 4" },
+      { id: "I", name: "Activo 4" },
+      { id: "J", name: "Activo 4" },
+      { id: "K", name: "Activo 4" },
+      { id: "L", name: "Activo 4" },
+    ];
+    const links = [
+      { source: "A", target: "B" },
+      { source: "B", target: "C" },
+      { source: "C", target: "D" },
+      { source: "D", target: "E" },
+      { source: "E", target: "F" },
+      { source: "F", target: "G" },
+      { source: "G", target: "H" },
+      { source: "H", target: "I" },
+      { source: "I", target: "J" },
+      { source: "J", target: "K" },
+      { source: "K", target: "L" },
+    ];
+
+    // Crear el objeto de simulación
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(80))
+      .force("charge", d3.forceManyBody().strength(-200))
+      .force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+
+    // Crear los elementos visuales
+    const svg = d3.select("svg");
+    const linkGroup = svg.append("g").attr("class", "links");
+    const nodeGroup = svg.append("g").attr("class", "nodes");
+
+    const linksElements = linkGroup.selectAll("line")
+      .data(links)
+      .enter()
+      .append("line")
+      .attr("class", "link");
+
+    const nodesElements = nodeGroup.selectAll("circle")
+      .data(nodes)
+      .enter()
+      .append("circle")
+      .attr("class", "node")
+      .attr("r", 10);
+
+    const nodeLabels = nodeGroup.selectAll("text")
+      .data(nodes)
+      .enter()
+      .append("text")
+      .attr("class", "node-label")
+      .text(d => d.name);
+
+    // Mostrar información adicional al pasar el ratón sobre los nodos
+    nodesElements.on("mouseover", (event, d) => {
+      const [x, y] = [d.x, d.y];
+      svg.append("text")
+        .attr("class", "tooltip")
+        .attr("x", x)
+        .attr("y", y - 15)
+        .text(d.name);
+    });
+
+    nodesElements.on("mouseout", (event, d) => {
+      svg.select(".tooltip").remove();
+    });
+
+    // Cambiar el estilo de los nodos y enlaces al hacer clic
+    nodesElements.on("click", (event, d) => {
+      d3.select(event.target)
+        .attr("fill", "red");
+
+      linksElements.filter(link => link.source === d || link.target === d)
+        .attr("stroke-width", 3)
+        .attr("stroke", "red");
+    });
+
+    // Implementar la función de arrastrar y soltar los nodos
+    nodesElements.call(drag(simulation));
+
+    function drag(simulation) {
+      function dragstarted(event, d) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+
+      function dragged(event, d) {
+        d.fx = event.x;
+        d.fy = event.y;
+      }
+
+      function dragended(event, d) {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }
+
+      return d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+    }
+
+    // Funciones para actualizar la posición de los elementos en cada iteración de la simulación
+    function updateLinks() {
+      linksElements
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+    }
+
+    function updateNodes() {
+      nodesElements
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+
+      nodeLabels
+        .attr("x", d => d.x + 12)
+        .attr("y", d => d.y + 4);
+    }
+
+    function ticked() {
+      updateLinks();
+      updateNodes();
+    }
+
+    // Redimensionar el gráfico cuando cambia el tamaño de la ventana
+    function resize() {
+      svg.attr("width", window.innerWidth);
+      svg.attr("height", window.innerHeight);
+      simulation.force("center", d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+      simulation.restart();
+    }
+
+    // Registrar las funciones para actualizar la visualización y redimensionar el gráfico
+    simulation.on("tick", ticked);
+    d3.select(window).on("resize", resize);
+
+    // Iniciar la simulación
+    simulation.restart();
+
+  </script>
+</body>
+</html>
