@@ -39,14 +39,14 @@
       { id: "B", name: "Activo 2" },
       { id: "C", name: "Activo 3" },
       { id: "D", name: "Activo 4" },
-      { id: "E", name: "Activo 4" },
-      { id: "F", name: "Activo 4" },
-      { id: "G", name: "Activo 4" },
-      { id: "H", name: "Activo 4" },
-      { id: "I", name: "Activo 4" },
-      { id: "J", name: "Activo 4" },
-      { id: "K", name: "Activo 4" },
-      { id: "L", name: "Activo 4" },
+      { id: "E", name: "Activo 5" },
+      { id: "F", name: "Activo 6" },
+      { id: "G", name: "Activo 7" },
+      { id: "H", name: "Activo 8" },
+      { id: "I", name: "Activo 9" },
+      { id: "J", name: "Activo 10" },
+      { id: "K", name: "Activo 11" },
+      { id: "L", name: "Activo 12" },
     ];
     const links = [
       { source: "A", target: "B" },
@@ -60,6 +60,9 @@
       { source: "I", target: "J" },
       { source: "J", target: "K" },
       { source: "K", target: "L" },
+      { source: "K", target: "A" },
+      { source: "K", target: "H" },
+      { source: "H", target: "B" },
     ];
 
     // Crear el objeto de simulación
